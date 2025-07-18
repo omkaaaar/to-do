@@ -30,6 +30,7 @@ const sendTodo = async (req, res) => {
   }
 };
 
+// ! Delete function
 const deleteTodo = async (req, res) => {
   try {
     const todoCollection = getCollection();
@@ -54,4 +55,46 @@ const deleteTodo = async (req, res) => {
   }
 };
 
-module.exports = { getTodo, sendTodo, deleteTodo };
+// ! UPDTATE function
+const updateTodo = async (req, res) => {
+  const todoCollection = getCollection();
+
+  const id = req.params.id;
+  const { task, done } = req.body;
+
+  // ? If the object ID is invalid it will go here
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid ID format" });
+  }
+
+  //? Validating done
+  if (typeof done !== "boolean") {
+    return res.status(400).json({ error: "Invalid done format" });
+  }
+  // ? Validating Task
+  if (typeof task !== "string" || task.trim() === "") {
+    return res.status(400).json({ error: "Task should not be empty" });
+  }
+  if (typeof task === "" || done === "") {
+    return res.status(400).json({ error: "Task should not be empty" });
+  }
+
+  try {
+    await todoCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { task, done } }
+    );
+    if (result.modifiedCount === 0) {
+      return res
+        .status(404)
+        .json({ error: "Todo not found or already updated" });
+    }
+
+    res.json({ message: "Update successful" });
+  } catch (error) {
+    console.error("Update failed:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports = { getTodo, sendTodo, deleteTodo, updateTodo };
