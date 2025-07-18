@@ -5,11 +5,13 @@ const {
   sendTodo,
   deleteTodo,
   updateTodo,
+  patchUpdateTodo,
 } = require("../controllers/todoController");
 
 router.get("/", getTodo);
 router.post("/", sendTodo);
 router.delete("/:id", deleteTodo);
-router.patch("/:id", updateTodo);
+router.put("/:id", updateTodo);
+router.patch("/:id", patchUpdateTodo);
 
 module.exports = router;

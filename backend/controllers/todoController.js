@@ -75,9 +75,6 @@ const updateTodo = async (req, res) => {
   if (typeof task !== "string" || task.trim() === "") {
     return res.status(400).json({ error: "Task should not be empty" });
   }
-  if (typeof task === "" || done === "") {
-    return res.status(400).json({ error: "Task should not be empty" });
-  }
 
   try {
     await todoCollection.updateOne(
@@ -97,4 +94,35 @@ const updateTodo = async (req, res) => {
   }
 };
 
-module.exports = { getTodo, sendTodo, deleteTodo, updateTodo };
+// ! Patch Update
+const patchUpdateTodo = async (req, res) => {
+  const todoCollection = getCollection();
+
+  const id = req.params.id;
+  const updateData = req.body;
+
+  if (!ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid ID format" });
+  }
+
+  if (!updateData || Object.keys(updateData).length === 0) {
+    return res.status(400).json({ error: "Update data is required" });
+  }
+
+  if (updateData.done !== undefined && typeof updateData.done !== "boolean") {
+    return res.status(400).json({ error: "Done must be a boolean" });
+  }
+
+  try {
+    const result = await todoCollection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updateData }
+    );
+
+    res.status(200).json({ message: "Todo updated", result });
+  } catch (error) {
+    console.error("Update failed:", error);
+  }
+};
+
+module.exports = { getTodo, sendTodo, deleteTodo, updateTodo, patchUpdateTodo };
