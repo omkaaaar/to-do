@@ -9,8 +9,8 @@ async function connectDB() {
     await client.connect();
     console.log("Connected to MongoDB");
 
-    const dbName = "todoList";
-    const db = client.db(dbName);
+    // const dbName = "todoList";
+    const db = client.db("todoList");
     collection = db.collection("todos");
 
     console.log("connected to db");
